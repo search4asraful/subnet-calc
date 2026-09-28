@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="IPv4 and IPv6 subnet calculator. Works out network address, broadcast, host range, masks and more.">
+<title>Subnet Calculator</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#129518;</text></svg>">
+<script>
+  /* Resolve the theme before first paint so there is no flash of the wrong palette. */
+  try {
+    var stored = localStorage.getItem('subnet-calc:theme');
+    if (stored !== 'light' && stored !== 'dark') {
+      stored = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', stored);
+  } catch (error) { /* storage blocked — the light default in style.css is fine */ }
+</script>
+</head>
+<body>
+
+<div class="page">
+  <header class="masthead">
+    <div class="masthead-text">
+      <h1>Subnet Calculator</h1>
+      <p>Network, broadcast and host range for any IPv4 or IPv6 subnet.</p>
+    </div>
+    <button type="button" id="theme-toggle" class="icon-button" aria-label="Switch to dark theme" title="Switch theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.5 14.3A8.6 8.6 0 0 1 9.7 3.5a8.6 8.6 0 1 0 10.8 10.8z"/>
+      </svg>
+    </button>
+  </header>
+
+  <main>
+    <form id="calc-form" class="card input-card" novalidate>
+      <label class="field-label" for="ip-input">IP address and subnet</label>
+      <div class="input-row">
+        <input
+          id="ip-input"
+          name="ip"
+          type="text"
+          class="text-input"
+          placeholder="192.168.1.10/24"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          aria-describedby="input-hint error"
+        >
+        <button type="submit" class="button primary">Calculate</button>
+      </div>
+
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <p id="input-hint" class="hint">
+        Accepts <code>192.168.1.10/24</code>, <code>192.168.1.10 255.255.255.0</code> or
+        <code>2001:db8::1/64</code>. A bare address defaults to a host route.
+      </p>
+
+      <div class="examples">
+        <span class="examples-label">Try</span>
+        <button type="button" class="chip" data-example="192.168.1.10/24">192.168.1.10/24</button>
+        <button type="button" class="chip" data-example="10.0.0.0/8">10.0.0.0/8</button>
+        <button type="button" class="chip" data-example="172.16.4.7 255.255.252.0">172.16.4.7 &middot; /22</button>
+        <button type="button" class="chip" data-example="2001:db8:85a3::8a2e:370:7334/64">2001:db8&hellip;/64</button>
+        <button type="button" class="chip" data-example="fe80::1/10">fe80::1/10</button>
+      </div>
+    </form>
+
+    <section id="results" class="card results-card" aria-live="polite" hidden>
+      <div class="results-head">
+        <div>
+          <h2 id="result-title" class="results-title"></h2>
+          <p class="results-sub">Calculated from the address above</p>
+        </div>
+        <button type="button" id="copy-all" class="button ghost">Copy all</button>
+      </div>
+
+      <dl id="result-grid" class="result-grid"></dl>
+
+      <h3 class="section-title">Bit breakdown</h3>
+      <p id="breakdown-label" class="breakdown-label"></p>
+      <div id="breakdown"></div>
+
+      <div id="notes-block" class="notes-block" hidden>
+        <h3 class="section-title">Notes</h3>
+        <ul id="notes" class="notes"></ul>
+      </div>
+    </section>
+
+    <p id="empty-state" class="empty-state">
+      Enter an address above to see its network, host range and masks.
+    </p>
+  </main>
+
+  <footer class="footer">
+    <p>All maths runs in your browser &mdash; nothing is sent anywhere.</p>
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
